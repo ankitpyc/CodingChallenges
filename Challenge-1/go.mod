@@ -1,4 +1,4 @@
-module github.com/misanki/codingChallenge1
+module Challenge-1
 
 go 1.21.6
 
