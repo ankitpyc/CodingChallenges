@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
+	freader "Challenge-1/internal/filereader"
+	file_details "Challenge-1/internal/filereader/dto"
+
 	"fmt"
-	"io"
-	"log"
-	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -20,35 +18,9 @@ func main() {
 		Long:  `prints the no of lines,words , characters to the terminal`,
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			var (
-				lineCount int64
-				wordCount int
-				charCount int
-			)
-
-			f, err := os.OpenFile(args[0], os.O_RDWR|os.O_CREATE, 0644)
-			if err != nil {
-				log.Fatalf("read file line error: %v", err)
-			}
-			rd := bufio.NewReader(f)
-			for {
-				line, err := rd.ReadString('\n')
-				if err != nil {
-					if err == io.EOF {
-						break
-					}
-
-					log.Fatalf("read file line error: %v", err)
-					return
-				}
-				splitWords := strings.Split(line, " ")
-				for _, word := range splitWords {
-					charCount = charCount + len(word)
-				}
-				lineCount = lineCount + 1
-				wordCount = wordCount + len(splitWords)
-			}
-			res := fmt.Sprintf("LC : %d , WC : %d , CC : %d", lineCount, wordCount, charCount)
+			filedetails := &file_details.FileDetails{}
+			freader.ReadFile(args[0], filedetails)
+			res := fmt.Sprintf("LC : %d , WC : %d , CC : %d", filedetails.LineCount, filedetails.WordCount, filedetails.CharCount)
 			fmt.Println(res)
 		},
 	}
