@@ -7,8 +7,8 @@ Given there is usually an unequal distribution of character occurrences in text 
 For example if we have the string aaabbc, it would normally take up 6 bytes, but if we assign each character a variable length code, with the most frequently occurring character has the shortest code we might give them the following codes:
 
 <code>a: 1</code>
-b: 01
-c: 10
+<code>b: 01</code>
+<code>c: 10</code>
 
 and we could reduce the string aaabbc (six bytes) to 111010110 (nine bits). It’s not quite that simple though as we need to ensure that the codes are prefix-free, that is the bit string representing one character is not a prefix of a bit string representing another.
 
