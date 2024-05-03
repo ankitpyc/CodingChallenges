@@ -2,19 +2,20 @@ package algorithim
 
 import (
 	heap "challenge3/internal/Tree"
-	treeNode "challenge3/internal/Tree/TreeNode"
 	"fmt"
 )
 
 type HuffmanTree struct {
-	root *treeNode.TreeNode
-	heap *heap.MinHeap
+	root    *heap.CharNode
+	heap    *heap.MinHeap
+	Charmap map[rune]string
 }
 
 func BuildHuffManTree(heap *heap.MinHeap) *HuffmanTree {
 	return &HuffmanTree{
-		root: nil,
-		heap: heap,
+		root:    nil,
+		heap:    heap,
+		Charmap: make(map[rune]string),
 	}
 }
 
@@ -22,10 +23,10 @@ func (huffman *HuffmanTree) Encode() *heap.CharNode {
 	for huffman.heap.Size() > 1 {
 		node1 := huffman.heap.ExtractMin()
 		node2 := huffman.heap.ExtractMin()
-		MergeNode(huffman, &node1, &node2)
+		MergeNode(huffman, node1, node2)
 	}
-	minNode := huffman.heap.ExtractMin()
-	return &minNode
+	huffman.root = huffman.heap.ExtractMin()
+	return huffman.root
 }
 
 func MergeNode(huffman *HuffmanTree, node1, node2 *heap.CharNode) {

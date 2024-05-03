@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"strings"
 )
 
@@ -15,9 +16,9 @@ type FileDetails CompressedFile
 
 type FileCompressor struct{}
 
-func (f *FileCompressor) CompressFile(filepath string) map[rune]int {
-	// var fileDetails = &FileDetails{}
+func (f *FileCompressor) CompressFile(filepath string) map[rune]string {
 	file, err := os.OpenFile(filepath, os.O_RDONLY, 0644)
+	defer file.Close()
 	if err != nil {
 		log.Fatal("error reading file at the path ", err)
 	}
@@ -26,11 +27,8 @@ func (f *FileCompressor) CompressFile(filepath string) map[rune]int {
 	for {
 		line, err := rd.ReadString('\n')
 		fmt.Println(line)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			log.Fatalf("read file line error: %v", err)
+		if err != nil && err == io.EOF {
+			break
 		}
 		splitWords := strings.Split(line, " ")
 		f.ProcessWordinLine(splitWords, freqMap)
@@ -38,37 +36,78 @@ func (f *FileCompressor) CompressFile(filepath string) map[rune]int {
 
 	heap := minheap.NewTreeWithCapacity(len(freqMap))
 	for key, val := range freqMap {
+		fmt.Printf("key(%c) - Val(%d)", key, val)
 		heap.AddNode(key, val)
 	}
 	var huff *huffmanTree.HuffmanTree = huffmanTree.BuildHuffManTree(heap)
-
 	node := huff.Encode()
-	traverseTree(node, "")
-	fmt.Print("node is ", node.Count)
-	fmt.Println()
-	size := heap.Size()
-	for j := 0; j < size; j++ {
-		no := heap.ExtractMin()
-		fmt.Printf("min  %c -- %d", no.Char, no.Count)
-		fmt.Println()
-	}
-
-	return freqMap
+	traverseTree(huff, node, "")
+	return huff.Charmap
 }
 
-func traverseTree(node *minheap.CharNode, str string) {
+func (f *FileCompressor) WriteEncodedFile(filepath string, compressed_map map[rune]string) {
+	file, _ := os.OpenFile(filepath, os.O_RDONLY, 0644)
+	cwd, _ := os.Getwd()
+	fmt.Println(cwd)
+	outpath := path.Join(cwd, "output.txt")
+	ofile, err := os.OpenFile(outpath, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+	defer ofile.Close()
+	buf := make([]byte, 1)
+	for {
+		// Read one byte (one character) from the file
+		n, err := file.Read(buf)
+
+		if err != nil {
+			fmt.Println("Error reading file:", err)
+			break
+		}
+		if n == 0 {
+			// Reached end of file
+			break
+		}
+
+		// Process the character (in this example, just print it)
+		chars := string(buf[0])
+		val, ok := compressed_map[rune(buf[0])]
+		if ok {
+			fmt.Printf("got %c for %s", buf[0], val)
+			fmt.Println()
+			_, err := ofile.WriteString(val)
+			if err != nil {
+				fmt.Println("Error writing to file:", err)
+				return
+			}
+		} else {
+			ofile.WriteString(chars)
+		}
+	}
+}
+
+func (f *FileCompressor) BuildHuffManTree(heap *minheap.MinHeap) {
+	var huff *huffmanTree.HuffmanTree = huffmanTree.BuildHuffManTree(heap)
+	node := huff.Encode()
+	traverseTree(huff, node, "")
+}
+
+func traverseTree(huff *huffmanTree.HuffmanTree, node *minheap.CharNode, str string) {
 	if node != nil {
-		traverseTree(node.Left, str+"1")
+		traverseTree(huff, node.Left, str+"1")
 		if node.Char != '-' {
+			huff.Charmap[node.Char] = str
 			fmt.Printf("%c  : %s ", node.Char, str)
 			fmt.Println()
 		}
 		fmt.Println()
-		traverseTree(node.Right, str+"0")
+		traverseTree(huff, node.Right, str+"0")
 	}
 }
 
 func (f *FileCompressor) ProcessWordinLine(words []string, freqMap map[rune]int) {
+	spaces_length := len(words) - 1
 	for _, word := range words {
 		trimmedword := strings.TrimSpace(word)
 		var chars []rune = []rune(trimmedword)
@@ -81,4 +120,18 @@ func (f *FileCompressor) ProcessWordinLine(words []string, freqMap map[rune]int)
 			}
 		}
 	}
+	_, ok := freqMap[' ']
+	if ok {
+		freqMap[' '] = freqMap[' '] + spaces_length
+	} else {
+		freqMap[' '] = spaces_length
+	}
+
+	_, ok = freqMap['\n']
+	if ok {
+		freqMap['\n'] = freqMap['\n'] + 1
+	} else {
+		freqMap['\n'] = 1
+	}
+
 }

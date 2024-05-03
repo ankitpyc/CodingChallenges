@@ -28,6 +28,7 @@ func NewTreeWithCapacity(capacity int) *MinHeap {
 		arr:      make([]*CharNode, capacity),
 	}
 }
+
 func (heap *MinHeap) Size() int {
 	return heap.heapsize
 }
@@ -65,12 +66,12 @@ func (heap *MinHeap) GetMinHeap() []*CharNode {
 	return heap.arr
 }
 
-func (heap *MinHeap) ExtractMin() CharNode {
+func (heap *MinHeap) ExtractMin() *CharNode {
 	minNode := heap.arr[0]
 	heap.arr[0] = heap.arr[heap.heapsize-1]
 	heap.heapsize--
 	heap.MinHeapify(0)
-	return *minNode
+	return minNode
 }
 
 func (heap *MinHeap) MinHeapify(i int) {

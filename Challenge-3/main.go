@@ -17,11 +17,11 @@ func main() {
 		Long:  `prints the no of lines,words , characters to the terminal`,
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			stringmap := fileCompressor.CompressFile(args[0])
-			for key, value := range stringmap {
-				fmt.Printf("Key: %c, Value: %d\n", key, value)
-				fmt.Println()
-			}
+			compressed_map := fileCompressor.CompressFile(args[0])
+
+			fmt.Print("encoding file")
+			fileCompressor.WriteEncodedFile(args[0], compressed_map)
+
 		},
 	}
 	fileReaderCmd.Flags().StringVarP(&filename, "filepath", "f", "hiname.txt", "name of the file to be read")
