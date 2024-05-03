@@ -6,7 +6,7 @@ Given there is usually an unequal distribution of character occurrences in text 
 
 For example if we have the string aaabbc, it would normally take up 6 bytes, but if we assign each character a variable length code, with the most frequently occurring character has the shortest code we might give them the following codes:
 
-a: 1
+<code>a: 1</code>
 b: 01
 c: 10
 
