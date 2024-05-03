@@ -18,6 +18,9 @@ type FileCompressor struct{}
 
 func (f *FileCompressor) CompressFile(filepath string) map[rune]string {
 	file, err := os.OpenFile(filepath, os.O_RDONLY, 0644)
+	if err != nil {
+		log.Fatal("error while opening file ", err)
+	}
 	defer file.Close()
 	if err != nil {
 		log.Fatal("error reading file at the path ", err)
@@ -36,7 +39,6 @@ func (f *FileCompressor) CompressFile(filepath string) map[rune]string {
 
 	heap := minheap.NewTreeWithCapacity(len(freqMap))
 	for key, val := range freqMap {
-		fmt.Printf("key(%c) - Val(%d)", key, val)
 		heap.AddNode(key, val)
 	}
 	var huff *huffmanTree.HuffmanTree = huffmanTree.BuildHuffManTree(heap)
@@ -74,8 +76,6 @@ func (f *FileCompressor) WriteEncodedFile(filepath string, compressed_map map[ru
 		chars := string(buf[0])
 		val, ok := compressed_map[rune(buf[0])]
 		if ok {
-			fmt.Printf("got %c for %s", buf[0], val)
-			fmt.Println()
 			_, err := ofile.WriteString(val)
 			if err != nil {
 				fmt.Println("Error writing to file:", err)
@@ -98,10 +98,7 @@ func traverseTree(huff *huffmanTree.HuffmanTree, node *minheap.CharNode, str str
 		traverseTree(huff, node.Left, str+"1")
 		if node.Char != '-' {
 			huff.Charmap[node.Char] = str
-			fmt.Printf("%c  : %s ", node.Char, str)
-			fmt.Println()
 		}
-		fmt.Println()
 		traverseTree(huff, node.Right, str+"0")
 	}
 }

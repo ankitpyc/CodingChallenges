@@ -1,15 +1,8 @@
 package tree
 
-import (
-	treeNode "challenge3/internal/Tree/TreeNode"
-	"fmt"
-)
-
-type Node treeNode.TreeNode
-
 type MinHeap struct {
 	heapsize int
-	root     *Node
+	root     *CharNode
 	arr      [](*CharNode)
 	capacity int
 }
@@ -34,8 +27,6 @@ func (heap *MinHeap) Size() int {
 }
 
 func (heap *MinHeap) AddNode(char rune, count int) {
-	fmt.Printf("adding node for %c", char)
-	fmt.Println()
 	heap.heapsize++
 	i := heap.heapsize - 1
 	heap.arr[i] = &CharNode{
@@ -51,8 +42,6 @@ func (heap *MinHeap) AddNode(char rune, count int) {
 }
 
 func (heap *MinHeap) AddNodes(node *CharNode) {
-	fmt.Printf("adding node for %c", node.Char)
-	fmt.Println()
 	heap.heapsize++
 	i := heap.heapsize - 1
 	heap.arr[i] = node

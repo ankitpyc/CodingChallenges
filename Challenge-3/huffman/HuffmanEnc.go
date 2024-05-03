@@ -2,7 +2,6 @@ package algorithim
 
 import (
 	heap "challenge3/internal/Tree"
-	"fmt"
 )
 
 type HuffmanTree struct {
@@ -30,8 +29,6 @@ func (huffman *HuffmanTree) Encode() *heap.CharNode {
 }
 
 func MergeNode(huffman *HuffmanTree, node1, node2 *heap.CharNode) {
-	fmt.Printf("node 1 %c : %d node 2  %c : %d", node1.Char, node1.Count, node2.Char, node2.Count)
-	fmt.Println()
 	node3 := &heap.CharNode{
 		Count: node1.Count + node2.Count,
 		Char:  '-',

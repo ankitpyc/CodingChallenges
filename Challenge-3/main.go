@@ -2,7 +2,6 @@ package main
 
 import (
 	fileCompressor "challenge3/internal/compress"
-	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -18,8 +17,6 @@ func main() {
 		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
 			compressed_map := fileCompressor.CompressFile(args[0])
-
-			fmt.Print("encoding file")
 			fileCompressor.WriteEncodedFile(args[0], compressed_map)
 
 		},
