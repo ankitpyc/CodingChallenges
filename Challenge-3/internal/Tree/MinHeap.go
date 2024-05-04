@@ -22,6 +22,12 @@ func NewTreeWithCapacity(capacity int) *MinHeap {
 	}
 }
 
+func (heap *MinHeap) BuildTreeWithFreqCount(freqMap map[rune]int) {
+	for key, val := range freqMap {
+		heap.AddNode(key, val)
+	}
+}
+
 func (heap *MinHeap) Size() int {
 	return heap.heapsize
 }

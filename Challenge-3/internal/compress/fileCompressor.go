@@ -1,15 +1,13 @@
 package compress
 
 import (
-	"bufio"
 	huffmanTree "challenge3/huffman"
+	analyzer "challenge3/internal/TextAnalyzer"
 	minheap "challenge3/internal/Tree"
 	"fmt"
-	"io"
 	"log"
 	"os"
 	"path"
-	"strings"
 )
 
 type FileDetails CompressedFile
@@ -22,28 +20,11 @@ func (f *FileCompressor) CompressFile(filepath string) map[rune]string {
 		log.Fatal("error while opening file ", err)
 	}
 	defer file.Close()
-	if err != nil {
-		log.Fatal("error reading file at the path ", err)
-	}
-	var freqMap map[rune]int = make(map[rune]int)
-	rd := bufio.NewReader(file)
-	for {
-		line, err := rd.ReadString('\n')
-		fmt.Println(line)
-		if err != nil && err == io.EOF {
-			break
-		}
-		splitWords := strings.Split(line, " ")
-		f.ProcessWordinLine(splitWords, freqMap)
-	}
-
-	heap := minheap.NewTreeWithCapacity(len(freqMap))
-	for key, val := range freqMap {
-		heap.AddNode(key, val)
-	}
-	var huff *huffmanTree.HuffmanTree = huffmanTree.BuildHuffManTree(heap)
-	node := huff.Encode()
-	traverseTree(huff, node, "")
+	var freqCount map[rune]int = analyzer.AnalyzeEncode(file)
+	heap := minheap.NewTreeWithCapacity(len(freqCount))
+	heap.BuildTreeWithFreqCount(freqCount)
+	var huff *huffmanTree.HuffmanTree = huffmanTree.NewHuffManTree(heap)
+	huff.BuildHuffManTree().BuildEncodings()
 	return huff.Charmap
 }
 
@@ -85,50 +66,4 @@ func (f *FileCompressor) WriteEncodedFile(filepath string, compressed_map map[ru
 			ofile.WriteString(chars)
 		}
 	}
-}
-
-func (f *FileCompressor) BuildHuffManTree(heap *minheap.MinHeap) {
-	var huff *huffmanTree.HuffmanTree = huffmanTree.BuildHuffManTree(heap)
-	node := huff.Encode()
-	traverseTree(huff, node, "")
-}
-
-func traverseTree(huff *huffmanTree.HuffmanTree, node *minheap.CharNode, str string) {
-	if node != nil {
-		traverseTree(huff, node.Left, str+"1")
-		if node.Char != '-' {
-			huff.Charmap[node.Char] = str
-		}
-		traverseTree(huff, node.Right, str+"0")
-	}
-}
-
-func (f *FileCompressor) ProcessWordinLine(words []string, freqMap map[rune]int) {
-	spaces_length := len(words) - 1
-	for _, word := range words {
-		trimmedword := strings.TrimSpace(word)
-		var chars []rune = []rune(trimmedword)
-		for _, val := range chars {
-			_, ok := freqMap[val]
-			if ok {
-				freqMap[val]++
-			} else {
-				freqMap[val] = 1
-			}
-		}
-	}
-	_, ok := freqMap[' ']
-	if ok {
-		freqMap[' '] = freqMap[' '] + spaces_length
-	} else {
-		freqMap[' '] = spaces_length
-	}
-
-	_, ok = freqMap['\n']
-	if ok {
-		freqMap['\n'] = freqMap['\n'] + 1
-	} else {
-		freqMap['\n'] = 1
-	}
-
 }

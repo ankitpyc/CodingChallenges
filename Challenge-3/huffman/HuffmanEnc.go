@@ -10,7 +10,7 @@ type HuffmanTree struct {
 	Charmap map[rune]string
 }
 
-func BuildHuffManTree(heap *heap.MinHeap) *HuffmanTree {
+func NewHuffManTree(heap *heap.MinHeap) *HuffmanTree {
 	return &HuffmanTree{
 		root:    nil,
 		heap:    heap,
@@ -18,17 +18,17 @@ func BuildHuffManTree(heap *heap.MinHeap) *HuffmanTree {
 	}
 }
 
-func (huffman *HuffmanTree) Encode() *heap.CharNode {
+func (huffman *HuffmanTree) BuildHuffManTree() *HuffmanTree {
 	for huffman.heap.Size() > 1 {
 		node1 := huffman.heap.ExtractMin()
 		node2 := huffman.heap.ExtractMin()
-		MergeNode(huffman, node1, node2)
+		huffman.MergeNode(node1, node2)
 	}
 	huffman.root = huffman.heap.ExtractMin()
-	return huffman.root
+	return huffman
 }
 
-func MergeNode(huffman *HuffmanTree, node1, node2 *heap.CharNode) {
+func (huffman *HuffmanTree) MergeNode(node1, node2 *heap.CharNode) {
 	node3 := &heap.CharNode{
 		Count: node1.Count + node2.Count,
 		Char:  '-',
@@ -37,4 +37,19 @@ func MergeNode(huffman *HuffmanTree, node1, node2 *heap.CharNode) {
 	}
 
 	huffman.heap.AddNodes(node3)
+}
+
+func (huffman *HuffmanTree) BuildEncodings() map[rune]string {
+	huffman.traverseTree(huffman.root, "")
+	return huffman.Charmap
+}
+
+func (huffman *HuffmanTree) traverseTree(node *heap.CharNode, str string) {
+	if node != nil {
+		huffman.traverseTree(node.Left, str+"1")
+		if node.Char != '-' {
+			huffman.Charmap[node.Char] = str
+		}
+		huffman.traverseTree(node.Right, str+"0")
+	}
 }
