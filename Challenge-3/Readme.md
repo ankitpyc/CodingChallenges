@@ -1,4 +1,4 @@
-# The Challenge - Building A Huffman Encoder/Decoder
+# The Challenge - Building A Compression tool
 
 In the early 1950s David Huffman developed an algorithm to find the optimal prefix code that can be used for lossless data compression.
 
